@@ -16,12 +16,10 @@ class CheckStudent
      */
     public function handle(Request $request, Closure $next)
     {
-        // Check if the user is authenticated and has the 'student' role
         if (Auth::check() && Auth::user()->role == 'student') {
-            return $next($request);
-        }
+            return $next($request);                      
+              }
 
-        // If not a student, redirect to login or show an unauthorized message
-        return redirect('/login')->with('error', 'You do not have student access.');
+        return redirect('/')->with('error', 'You do not have student access.');
     }
 }

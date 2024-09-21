@@ -1,66 +1,113 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Student Management  ##
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Using Comments:
 
-## About Laravel
+Step 1 : Table Creates Comment:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<!-- 1. php artisan make:seeder DepartmentSeeder. -->
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<!-- DepartmentSeeder.php -->
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+ public function run(): void
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('departments')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        
+        DB::table('departments')->insert([
+            ['name' => 'Mechanical'],
+            ['name' => 'Computer'],
+            ['name' => 'ECE'],
+            ['name' => 'EEE'],
+            ['name' => 'AI'],
+        ]);
+    }
 
-## Learning Laravel
+    run the comment :
+    php artisan db:seed --class=DepartmentSeeder
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+<!-- 2. Department table : -->
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    php artisan make:migration create_departments_table --create=departments
 
-## Laravel Sponsors
+    Schema::create('departments', function (Blueprint $table) {
+                $table->id(); 
+                $table->string('name');
+                $table->timestamps();
+            });
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+    run the comment :
+    php artisan migrate
 
-### Premium Partners
+<!-- 2. Student table : -->
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+php artisan make:migration create_students_table
 
-## Contributing
+    Schema::create('students', function (Blueprint $table) {
+            $table->id();
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('mobile');
+            $table->string('email')->unique();
+            $table->text('address');
+            $table->unsignedBigInteger('department_id');  // Foreign key
+        
+            // Foreign key constraint: Ensure `department_id` references `departments.id`
+            $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
+        
+            $table->tinyInteger('status')->default(1);
+            $table->timestamps();
+        });
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    run the comment :
+    php artisan migrate
 
-## Code of Conduct
+ <!-- 3. Middleware Role Setup Student  -->
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    php artisan make:middleware CheckStudent
 
-## Security Vulnerabilities
+<!-- CheckStudent.php -->
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+            public function handle(Request $request, Closure $next)
+            {
+                if (Auth::check() && Auth::user()->role == 'student') {
+                    return $next($request);                      
+                    }
 
-## License
+                return redirect('/')->with('error', 'You do not have student access.');
+            }
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+<!-- kernel.php: -->
+
+         protected $routeMiddleware = [
+        'student' => \App\Http\Middleware\CheckStudent::class,
+    ];
+
+<!-- 2.Routes  -->
+
+ <!-- web.php -->
+
+Auth::routes();
+
+Route::group(['middleware' => 'guest'], function(){
+Route::post('/login', 'LoginController@login_auth');
+Route::post('/signup', 'LoginController@signup');
+
+});
+
+Route::get('/', 'LoginController@showLoginForm');
+
+Route::get('/signupform', 'LoginController@signupform');
+
+Route::middleware(['auth', 'student'])->group(function () {
+    Route::get('/student', 'StudentController@student')->name('student');
+
+    // Request:
+    Route::post('/student-add', 'StudentController@student_add');
+    Route::post('/student-update/{id}', 'StudentController@student_update');
+    Route::post('/student-delete', 'StudentController@student_delete');
+    Route::get('/student-get', 'StudentController@student_get');
+Route::get('/logout', 'LoginController@logout');
+    
+});

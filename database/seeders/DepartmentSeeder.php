@@ -14,6 +14,10 @@ class DepartmentSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('departments')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        
         DB::table('departments')->insert([
             ['name' => 'Mechanical'],
             ['name' => 'Computer'],

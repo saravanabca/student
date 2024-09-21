@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
+    <title>Admin Signup</title>
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/common.css') }}">
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
@@ -22,9 +22,14 @@
 
 <body>
     <div class="container login-container mt-5">
-        <h2>Admin Sign In</h2>
-        <form id="login_form">
+        <h2>Admin Sign up</h2>
+        <form id="signup_form">
             <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" class="form-control">
+                <div class="error-message" id="name_error"></div>
+            </div>
+            <div class="form-group mt-3">
                 <label for="email">Email</label>
                 <input type="email" name="email" id="email" class="form-control">
                 <div class="error-message" id="email_error"></div>
@@ -34,13 +39,13 @@
                 <input type="password" name="password" id="password" class="form-control">
                 <div class="error-message" id="password_error"></div>
             </div>
-            <button type="submit" class="btn btn-primary mt-5">Login</button>
-            <div> Don’t have an account ? <span><a href="{{url('/signupform')}}">Signup </a></span></div>
+            <button type="submit" class="btn btn-primary mt-3">Signup</button>
+            <div> Already have an account? <span><a href="{{url('/')}}"> Log in </a></span></div>
         </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    <script src="{{ asset('js/login.js') }}"></script>
+    <script src="{{ asset('js/signup.js') }}"></script>
     <script>
     var baseUrl = "{{ config('app.url') }}";
     </script>

@@ -30,21 +30,28 @@ Auth::routes();
 
 Route::group(['middleware' => 'guest'], function(){
     
+    
+   
+    Route::post('/login', 'LoginController@login_auth');
+    Route::post('/signup', 'LoginController@signup');
+
 
 });
 
-Route::get('/', 'StudentController@student');
-Route::post('/login', 'LoginController@login')->name('login');
- 
+Route::get('/', 'LoginController@showLoginForm');
+
+Route::get('/signupform', 'LoginController@signupform');
 
 
-// Route::middleware(['auth', 'student'])->group(function () {
-//     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
-//     Route::resource('students', StudentController::class);
-// });
 
+Route::middleware(['auth', 'student'])->group(function () {
+    Route::get('/student', 'StudentController@student')->name('student');
 
+    // Request:
     Route::post('/student-add', 'StudentController@student_add');
     Route::post('/student-update/{id}', 'StudentController@student_update');
     Route::post('/student-delete', 'StudentController@student_delete');
     Route::get('/student-get', 'StudentController@student_get');
+Route::get('/logout', 'LoginController@logout');
+    
+});

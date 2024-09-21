@@ -31,7 +31,7 @@ class RedirectIfAuthenticated
     {
         if (Auth::guard('web')->check()) 
         {
-            return redirect()->url('/');
+            return redirect()->url('student');
         }
 
         return $next($request);

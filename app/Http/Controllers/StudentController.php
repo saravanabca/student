@@ -81,24 +81,5 @@ class StudentController extends Controller
     }
     
 
-
-public function student_delete(Request $request)
-{
-    $id = $request->input('selectedId');
-    // dd($id);
-    if (!is_array($id)) {
-      $id = [$id]; 
-  }
-
-    student::whereIn('id', $id)->delete();
-    // studentModel::whereIn('id', $id)->update(['flag' => 0]);
-
-    return response()->json([
-      'status' => true,
-      'message' => 'student Deleted Successfully'
-  ]);
-
-}
-
    
 }

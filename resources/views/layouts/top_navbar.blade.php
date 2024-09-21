@@ -8,7 +8,7 @@
          <div class="collapse navbar-collapse" id="navbarNav">
              <ul class="navbar-nav ms-auto">
                  <li>
-                     <a class="navbar-brand" href="{{url('/')}}">Logout</a>
+                     <a class="navbar-brand" href="{{url('logout')}}">Logout</a>
 
                  </li>
 
@@ -21,6 +21,6 @@
  <div class="sidenav">
      <h4 class="text-center text-white">Admin Panel</h4>
      <hr>
-     <a href="{{url('/')}}">Students</a>
+     <a href="{{url('student')}}">Student Dashboard</a>
 
  </div>

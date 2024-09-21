@@ -1,9 +1,12 @@
 
-$("#login_form input").on("keyup", function () {
+
+
+
+$("#signup_form input").on("keyup", function () {
     validateField($(this));
 });
 
-$("#login_form").on("submit", function (e) {
+$("#signup_form").on("submit", function (e) {
     e.preventDefault();
 
     var form = $(this);
@@ -11,7 +14,11 @@ $("#login_form").on("submit", function (e) {
     var firstInvalidField = null;
 
     // Validate all fields
-    if (!validateField($("#email"))) {
+    if (!validateField($("#name"))) {
+        isValid = false;
+        firstInvalidField = $("#name");
+    } 
+   else if (!validateField($("#email"))) {
         isValid = false;
         firstInvalidField = $("#email");
     } else if (!validateField($("#password"))) {
@@ -22,7 +29,7 @@ $("#login_form").on("submit", function (e) {
     if (isValid) {
         var formData = new FormData(this);
         console.log(formData);
-        AjaxSubmit(formData, baseUrl + "/login", "POST");
+        AjaxSubmit(formData, baseUrl + "/signup", "POST");
     } else {
         firstInvalidField.focus();
     }
@@ -34,6 +41,12 @@ function validateField(field) {
     var isValid = true;
     var errorMessage = "";
 
+     if (fieldId === "name") {
+        if (fieldValue === "") {
+            isValid = false;
+            errorMessage = "name is required";
+        }
+    }
     if (fieldId === "email") {
         var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (fieldValue === "") {
@@ -62,6 +75,9 @@ function validateField(field) {
     return isValid;
 }
 
+
+
+
 function AjaxSubmit(formData, url, method) {
 
     $.ajax({
@@ -74,7 +90,9 @@ function AjaxSubmit(formData, url, method) {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
         success: function (response) {
-            if (response.loginsuccess) {
+           
+
+            if (response.signup) {
                 alert(response.message); 
                 window.location.href = baseUrl +'/student'; 
             } else {
