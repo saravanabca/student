@@ -21,6 +21,6 @@
  <div class="sidenav">
      <h4 class="text-center text-white">Admin Panel</h4>
      <hr>
-     <a href="{{url('product')}}">Products</a>
+     <a href="{{url('/')}}">Students</a>
 
  </div>

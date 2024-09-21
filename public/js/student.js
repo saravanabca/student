@@ -2,61 +2,77 @@ $(document).ready(function () {
     var mode, id, coreJSON;
     var currentPage = 0; 
     // ***************************[Get] ********************************************************************
-    // Getproduct();
+    Getstudent();
 
+    function Getstudent() {
 
         $.ajax({
-            url: baseUrl + "/product-get",
+            url: baseUrl + "/student-get",
             type: "GET",
             dataType: "json",
             success: function (response) {
-                disproduct(response);
-                coreJSON = response.productdetails;
+                disstudent(response);
+                coreJSON = response.studentdetails;
                 console.log(coreJSON);
             },
             error: function (xhr, status, error) {
-                console.error("Error fetching Product details:", error);
+                console.error("Error fetching student details:", error);
             },
         });
-    
+    }
 
-        function disproduct(data) {
+        function disstudent(data) {
             if ($.fn.DataTable.isDataTable("#datatable")) {
                 $('#datatable').DataTable().clear().destroy();
             }
         
             var table = $("#datatable").dataTable({
                 aaSorting: [],
-                aaData: data.productdetails,
+                aaData: data.studentdetails,
                 aoColumns: [
                     {
                         mData: function (data, type, full, meta) {
-                            return data.name;
+                            return data.first_name;
+                        },
+                    },
+                   
+                    {
+                        mData: function (data, type, full, meta) {
+                            return data.mobile;
                         },
                     },
                     {
                         mData: function (data, type, full, meta) {
-                            if (data.description.length > 15) {
-                                return '<span data-toggle="tooltip" title="' + data.description + '">' + data.description.substring(0, 15) + '...</span>';
+                            return data.email;
+                        },
+                    },
+                    {
+                        mData: function (data, type, full, meta) {
+                            if (data.address.length > 10) {
+                                return '<span data-toggle="tooltip" title="' + data.address + '">' + data.address.substring(0, 10) + '...</span>';
                             } else {
-                                return data.description;
+                                return data.address;
                             }
                         },
                     },
                     {
                         mData: function (data, type, full, meta) {
-                            return data.price;
+                            return data.department ? data.department.name : 'N/A';
                         },
                     },
                     {
                         mData: function (data, type, full, meta) {
-                            return `<img class="view_image" src="${baseUrl}/${data.image}" alt="Product Image" style="width: 50px; height: 50px;">`;
+                            // Conditionally set background color based on status
+                            if (data.status === 1) {
+                                return `<span class="badge bg-success">Active</span>`;
+                            } else {
+                                return `<span class="badge bg-danger">Inactivated</span>`;
+                            }
                         },
                     },
                     {
                         mData: function (data, type, full, meta) {
-                            return `<button class="edit-btn btn btn-primary" id="${meta.row}">Edit</button>
-                                    <button class="delete-btn btn btn-danger" id="${data.id}">Delete</button>`;
+                            return `<button class="edit-btn btn btn-primary" id="${meta.row}">Edit</button>`;
                         },
                     },
                 ],
@@ -64,6 +80,7 @@ $(document).ready(function () {
                     $('[data-toggle="tooltip"]').tooltip();
                 }
             });
+            
         
             $('[data-toggle="tooltip"]').tooltip();
         }
@@ -72,21 +89,21 @@ $(document).ready(function () {
     function refreshDetails()
     {
         currentPage = $('#datatable').DataTable().page(); // Capture the current page number
-        $.when(Getproduct()).done(function(){
+        $.when(Getstudent()).done(function(){
             var table = $('#datatable').DataTable();
             table.destroy();    
-            disproduct(coreJSON);               
+            disstudent(coreJSON);               
         });     
     }
 
     // ***************************[Add] ********************************************************************
 
-    $(".add_product_btn").click(function () {
+    $(".add_student_btn").click(function () {
         mode = "new";
-        $("#add_product").modal("show");
+        $("#add_student").modal("show");
     });
 
-    $("#add_product").on("show.bs.modal", function () {
+    $("#add_student").on("show.bs.modal", function () {
         $(this).find("form").trigger("reset");
         $(".form-control").removeClass("danger-border success-border");
         $(".error-message").html("");
@@ -94,32 +111,15 @@ $(document).ready(function () {
 
     });
 
-    $('#productImage').on('change', function(event) {
-        var file = event.target.files[0];
-        
-        if (file) {
-            var reader = new FileReader();
-            
-            reader.onload = function(e) {
-                $('#previewImage').attr('src', e.target.result);
-                $('#previewImage').show(); 
-                $('#productImage_error').text(''); 
-            };
-            
-            reader.readAsDataURL(file);
-        } else {
-            $('#previewImage').hide();
-            $('#productImage_error').text('No file selected.');
-        }
-    });
+ 
 
-    $("#product_add_form input").on("keyup", function () {
+    $("#student_add_form input").on("keyup", function () {
         validateField($(this));
     });
 
     // Form submission
 
-    $("#product_add_form").on("submit", function (e) {
+    $("#student_add_form").on("submit", function (e) {
         e.preventDefault();
         
         var form = $(this);
@@ -127,21 +127,36 @@ $(document).ready(function () {
         var firstInvalidField = null;
 
         // Validate all fields
-        if (!validateField($("#productName"))) {
+        if (!validateField($("#first_name"))) {
             isValid = false;
-            firstInvalidField = $("#productName");
-        } else if (!validateField($("#productDescription"))) {
+            firstInvalidField = $("#first_name");
+        } else if (!validateField($("#last_name"))) {
             isValid = false;
-            if (firstInvalidField === null) firstInvalidField = $("#productDescription");
-        } else if (!validateField($("#productPrice"))) {
+            if (firstInvalidField === null) firstInvalidField = $("#last_name");
+        } else if (!validateField($("#email"))) {
             isValid = false;
             if (firstInvalidField === null)
-                firstInvalidField = $("#productPrice");
+                firstInvalidField = $("#email");
         }
-        else if (!validateField($("#productImage"))) {
+        else if (!validateField($("#mobile"))) {
             isValid = false;
             if (firstInvalidField === null)
-                firstInvalidField = $("#productImage");
+                firstInvalidField = $("#mobile");
+        }
+        else if (!validateField($("#address"))) {
+            isValid = false;
+            if (firstInvalidField === null)
+                firstInvalidField = $("#address");
+        }
+        else if (!validateField($("#department_id"))) {
+            isValid = false;
+            if (firstInvalidField === null)
+                firstInvalidField = $("#department_id");
+        }
+        else if (!validateField($("#status"))) {
+            isValid = false;
+            if (firstInvalidField === null)
+                firstInvalidField = $("#status");
         }
 
         if (isValid) {
@@ -150,12 +165,12 @@ $(document).ready(function () {
             if (mode == "new") {
                 // showToast("add");
                 // return;
-                AjaxSubmit(formData, baseUrl + "/product-add", "POST");
+                AjaxSubmit(formData, baseUrl + "/student-add", "POST");
 
             } else if (mode == "update") {
               
-                formData.append("product_id", id);
-                AjaxSubmit(formData, baseUrl + "/product-update", "POST");
+                // formData.append("student_id", id);
+                AjaxSubmit(formData, baseUrl + "/student-update/"+ id, "POST");
             }
         } else {
             firstInvalidField.focus();
@@ -170,30 +185,56 @@ $(document).ready(function () {
         var isValid = true;
         var errorMessage = "";
 
-        if (fieldId === "productName") {
+        if (fieldId === "first_name") {
             if (fieldValue === "") {
                 isValid = false;
-                errorMessage = "Product Name is required";
+                errorMessage = "First Name is required";
             }
         } 
-       else if (fieldId === "productDescription") {
+       else if (fieldId === "last_name") {
             if (fieldValue === "") {
                 isValid = false;
-                errorMessage = "Product Description is required";
+                errorMessage = "Last Name is required";
             }
         } 
-        else if (fieldId === "productPrice") {
+        else if (fieldId === "email") {
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (fieldValue === "") {
                 isValid = false;
-                errorMessage = "Product Price is required";
+                errorMessage = "Email is required";
+            } else if (!emailRegex.test(fieldValue)) {
+                isValid = false;
+                errorMessage = "Enter a valid Email";
             }
-        } 
-       else if (fieldId === "productImage" && mode != 'update') {
+        } else if (fieldId === "mobile") {
+            var mobileRegex = /^[0-9]{10}$/;
             if (fieldValue === "") {
                 isValid = false;
-                errorMessage = "Product Image is required";
+                errorMessage = "Mobile Number is required";
+            } else if (!mobileRegex.test(fieldValue)) {
+                isValid = false;
+                errorMessage = "Enter a valid Mobile Number";
             }
-        } 
+        }
+        else if (fieldId === "address") {
+            if (fieldValue === "") {
+                isValid = false;
+                errorMessage = "Address is required";
+            }
+        }
+        else if (fieldId === "department_id") {
+            if (fieldValue === "") {
+                isValid = false;
+                errorMessage = "Department is required";
+            }
+        }
+        else if (fieldId === "status") {
+            if (fieldValue === "") {
+                isValid = false;
+                errorMessage = "Status is required";
+            }
+        }
+
 
         if (isValid) {
             field.removeClass("danger-border").addClass("success-border");
@@ -222,26 +263,26 @@ $(document).ready(function () {
             },
             success: function (response) {
                 // Handle success
-                if (response.status === "product_add_success") {
+                if (response.status === "student_add_success") {
                     if (response.status_value) {
                         
-                        $("#add_product").modal("hide");
+                        $("#add_student").modal("hide");
 
                         showToast(response.message);
-                        window.location.reload();
-                        // Getproduct();
+                        // window.location.reload();
+                        Getstudent();
                      
                     } else {
                         showToast(response.message);
                     }
                 }
-                if (response.status === "product_update_success") {
+                if (response.status === "student_update_success") {
                     if (response.status_value) {
-                        $("#add_product").modal("hide");
+                        $("#add_student").modal("hide");
                         showToast(response.message);
                         // refreshDetails();
-                        // Getproduct();
-                        window.location.reload();
+                        Getstudent();
+                        // window.location.reload();
 
                     } else {
                         showToast(response.message);
@@ -253,7 +294,7 @@ $(document).ready(function () {
                 if (xhr.status === 422) {
                     var errors = xhr.responseJSON.errors;
                     $.each(errors, function (key, message) {
-                        alert(message); 
+                        showToast(message); 
                     });
                 } else if (xhr.status === 500) { 
                     alert("An internal server error occurred. Please try again later.");
@@ -269,12 +310,17 @@ $(document).ready(function () {
     $(document).on("click", ".edit-btn", function () {
         var r_index = $(this).attr("id");
         mode = "update";
-        $("#add_product").modal("show");
+        $("#add_student").modal("show");
         
-        $("#productName").val(coreJSON[r_index].name);
-        $("#productDescription").val(coreJSON[r_index].description);
-        $("#productPrice").val(coreJSON[r_index].price);
-        $("#previewImage").attr("src", baseUrl + '/' + coreJSON[r_index].image);
+    // Assuming coreJSON[r_index] holds the selected student record
+$("#first_name").val(coreJSON[r_index].first_name);
+$("#last_name").val(coreJSON[r_index].last_name);
+$("#mobile").val(coreJSON[r_index].mobile);
+$("#email").val(coreJSON[r_index].email);
+$("#address").val(coreJSON[r_index].address);
+$("#department_id").val(coreJSON[r_index].department_id); // Assuming the dropdown has department_id as value
+$("#status").val(coreJSON[r_index].status); // Assuming the status is a select or input field
+
 
         console.log(coreJSON);
         id = coreJSON[r_index].id;
@@ -291,11 +337,11 @@ $(document).ready(function () {
             typeAnimated: true,
             // autoClose: 'cancelAction|8000',
             buttons: {
-                deleteproduct: {
-                    text: "delete product",
+                deletestudent: {
+                    text: "delete student",
                     action: function () {
                         $.ajax({
-                            url: baseUrl + "/product-delete",
+                            url: baseUrl + "/student-delete",
                             method: "POST",
                             headers: {
                                 "X-CSRF-TOKEN": $(

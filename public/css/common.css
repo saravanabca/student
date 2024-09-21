@@ -70,7 +70,7 @@ body {
 
 }
 
-/* product */
+/* student */
 
 .page_heading {
     /* color: blue; */
@@ -88,7 +88,7 @@ body {
     margin-bottom: 10px;
 }
 
-.edit-btn,.save_product_details {
+.edit-btn,.save_student_details {
     background: green;
     border: none;
     border-radius: 5px;
@@ -110,7 +110,7 @@ body {
 
 
 
-.product_add_title {
+.student_add_title {
     text-align: center;
     padding: 20px;
     background-color: #4285F4;
@@ -120,27 +120,27 @@ body {
     border: none;
 }
 
-#add_product .modal-header {
+#add_student .modal-header {
     border-bottom: none;
     padding: 0px !important;
 }
 
-#add_product .modal-content {
+#add_student .modal-content {
     border-radius: 4rem 4rem 3rem 3rem !important;
 }
 
 @media (min-width: 576px) {
-    .product-dialog {
+    .student-dialog {
         max-width: 800px !important;
     }
 }
 
-.product_add_main {
+.student_add_main {
     padding: 0px 30px 10px 30px;
 
 }
 
-#product_add_form input {
+#student_add_form input {
     box-shadow: none !important;
     height: 45px !important;
     font-family: "Barlow", sans-serif;
@@ -148,7 +148,7 @@ body {
     font-weight: 400;
 }
 
-#product_add_form label {
+#student_add_form label {
     font-size: 15px !important;
     top: -4px !important;
 }

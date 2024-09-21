@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 
-// use App\Http\Controllers\ProductController;
+// use App\Http\Controllers\StudentController;
 
 
 
@@ -37,17 +37,14 @@ Route::get('/', 'StudentController@student');
 Route::post('/login', 'LoginController@login')->name('login');
  
 
-// request:
+
+// Route::middleware(['auth', 'student'])->group(function () {
+//     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+//     Route::resource('students', StudentController::class);
+// });
 
 
-Route::group(['middleware' => 'auth'], function()
-{
-
-    Route::get('/product', 'ProductController@product')->name('product');
-
-    Route::post('/product-add', 'ProductController@product_add');
-    Route::post('/product-update', 'ProductController@product_update');
-    Route::post('/product-delete', 'ProductController@product_delete');
-    Route::get('/product-get', 'ProductController@product_get');
-
-});
+    Route::post('/student-add', 'StudentController@student_add');
+    Route::post('/student-update/{id}', 'StudentController@student_update');
+    Route::post('/student-delete', 'StudentController@student_delete');
+    Route::get('/student-get', 'StudentController@student_get');

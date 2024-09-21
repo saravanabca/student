@@ -2,120 +2,87 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Models\Student;
+use App\Models\Department; 
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
     public function student()
     {
-        return view('student');
+      $departments = Department::all();
+
+        return view('student',compact('departments'));
     }
 
 
-    public function product_add(Request $request)
-{
-    try{
+    public function student_add(Request $request)
+    {
+        try {
+            // Validate the incoming request
+            $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'mobile' => 'required|regex:/^[0-9]{10}$/|unique:students,mobile,',
+                'email' => 'required|email|unique:students,email',
+                'address' => 'required|string',
+                'department_id' => 'required|exists:departments,id', 
+                'status' => 'required|boolean'
+            ]);
 
-        $request->validate([
-            'name' => 'required',
-            'description' => 'required',
-            'price' => 'required|numeric',
-            'image' => 'required|image'
-        ]);
-        
-      $productData = $request->all();
-      $product = new product;
-      $product->fill($productData); 
-  
-    
+            $studentData = $request->all();
+            $student = new Student();
+            $student->fill($studentData);
+            $student->save();
 
-    $product->save();
-
-   return response()->json([
-      'status' =>'product_add_success',
-      'status_value' => true,
-      'message' => 'product Created Successfuly'
-  ]);
-}
-  catch (Exception $e) {
-    return response()->json([
-        'status_value' => false,
-        'message' => $e->getMessage()
-    ]); 
-}
-   
-}
-
-public function product_get()
-{
-    $productdetails = product::get();
-    
-    // dd($productdetails);
-// Return the view with billing details
-    return response()->json(['productdetails' => $productdetails]);
-}
-
-public function product_update(Request $request)
-{
-    try{
-      $product_id = $request->input('product_id');
-        // dd($product_id);
-      // Find the product by ID
-      $product = Product::find($product_id);
-      if ($product) {
-        $product->update($request->all());
-
-        
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $originalFileName = $image->getClientOriginalName();
-        
-            // Replace empty spaces with underscores in the filename
-            $newFileName = time() . '_' . str_replace(' ', '_', $originalFileName);
-            // dd($newFileName);
-        
-            // Move the uploaded image to the desired directory
-            $image->move(public_path('uploads/product/'), $newFileName);
-              // dd($image);
-        
-            // Assign the file path to the food_image attribute
-            $product->image = 'uploads/product/' . $newFileName;
-      
+            return response()->json([
+                'status' => 'student_add_success',
+                'status_value' => true,
+                'message' => 'Student Created Successfully'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status_value' => false,
+                'message' => $e->getMessage()
+            ]);
         }
+    }
 
-        $product->save();
-
+    public function student_update(Request $request, $id)
+    {
+        $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'mobile' => 'required|regex:/^[0-9]{10}$/|unique:students,mobile,' . $id,
+            'email' => 'required|email|unique:students,email,' . $id, 
+            'address' => 'required',
+            'department_id' => 'required|exists:departments,id',
+            'status' => 'required|boolean',
+        ]);
+    
+        // Find the student by id and update their information
+        $student = Student::findOrFail($id);
+        $student->fill($request->all());
+        $student->save();
+    
         return response()->json([
-          'status' => 'product_update_success',
+          'status' => 'student_update_success',
           'status_value' => true,
-          'message' => 'product Updated Successfully'
+          'message' => 'Student Created Successfully'
       ]);
-      
-      }
-      else{
-        return response()->json([
-          'status' => 'product_update_fail',
-          'status_value' => false,
-          'message' => 'product Not Found'
-      ]);
-      }
-  
+    }
+    
+
+    public function student_get()
+    {
+        $studentdetails = Student::with('department')->get();
+    
+        return response()->json(['studentdetails' => $studentdetails]);
+    }
+    
 
 
-
-}
-catch (Exception $e) {
-  return response()->json([
-      'status' => 'product_update_fail',
-      'status_value' => false,
-      'message' => $e->getMessage()
-  ]);
-}
-   
-}
-
-public function product_delete(Request $request)
+public function student_delete(Request $request)
 {
     $id = $request->input('selectedId');
     // dd($id);
@@ -123,12 +90,12 @@ public function product_delete(Request $request)
       $id = [$id]; 
   }
 
-    Product::whereIn('id', $id)->delete();
-    // CustomerModel::whereIn('id', $id)->update(['flag' => 0]);
+    student::whereIn('id', $id)->delete();
+    // studentModel::whereIn('id', $id)->update(['flag' => 0]);
 
     return response()->json([
       'status' => true,
-      'message' => 'Product Deleted Successfully'
+      'message' => 'student Deleted Successfully'
   ]);
 
 }
